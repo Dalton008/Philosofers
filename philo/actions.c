@@ -6,7 +6,7 @@
 /*   By: mjammie <mjammie@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/15 18:14:14 by mjammie           #+#    #+#             */
-/*   Updated: 2021/06/20 16:13:48 by mjammie          ###   ########.fr       */
+/*   Updated: 2021/06/30 12:23:10 by mjammie          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,12 @@
 
 void	take_fork(t_philo *philo)
 {
-	if (philo->id % 2 != 0)
-	{
-		pthread_mutex_lock(philo->left_fork);
-		printstatus(gettime(philo->params.start), "take left fork", \
-			philo, "\x1b[34m");
-		pthread_mutex_lock(philo->right_fork);
-		printstatus(gettime(philo->params.start), "take right fork", \
-			philo, "\x1b[34m");
-	}
-	else
-	{
-		pthread_mutex_lock(philo->right_fork);
-		printstatus(gettime(philo->params.start), "take right fork", \
-			philo, "\x1b[34m");
-		pthread_mutex_lock(philo->left_fork);
-		printstatus(gettime(philo->params.start), "take left fork", \
-			philo, "\x1b[34m");
-	}
+	pthread_mutex_lock(philo->left_fork);
+	printstatus(gettime(philo->params.start), "take left fork", \
+		philo, "\x1b[34m");
+	pthread_mutex_lock(philo->right_fork);
+	printstatus(gettime(philo->params.start), "take right fork", \
+		philo, "\x1b[34m");
 }
 
 void	eat(t_philo *philo)

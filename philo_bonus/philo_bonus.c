@@ -6,49 +6,59 @@
 /*   By: mjammie <mjammie@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 16:28:50 by mjammie           #+#    #+#             */
-/*   Updated: 2021/06/24 19:29:00 by mjammie          ###   ########.fr       */
+/*   Updated: 2021/06/30 15:49:47 by mjammie          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/philo_bonus.h"
 
-int	check_death(t_philo	*philo)
+void	*check_count_eat(void *all)
 {
-	if (gettime(philo->params.start) - philo->last_eat > \
-		philo->params.time_to_die && philo->stop != 1)
+	int		i;
+	t_all	*head;
+
+	i = 0;
+	head = (t_all *)all;
+	while (i < head->input.num_of_philos)
 	{
-		philo->isdead = 1;
-		printstatus(gettime(philo->params.start), "die", philo, \
-			"\x1b[31m");
-		return (1);
+		sem_wait(head->eat_check);
+		i++;
 	}
+	i = 0;
+	while (i < head->input.num_of_philos)
+	{
+		kill(head->pid[i], SIGTERM);
+		i++;
+	}
+	sem_unlink("forks");
+	sem_unlink("rights_to_write");
+	sem_unlink("eat_check");
+	exit(0);
 	return (0);
 }
 
 void	*check_starvation(void *philo)
 {
 	t_philo	*head;
-	int		philo_isfull;
 	int		i;
+	int		check;
 
 	i = 0;
 	head = (t_philo *)philo;
+	check = 1;
 	while (1)
 	{
-		philo_isfull = 0;
-		if (head->count_eat >= head->params.num_of_eat && \
-				head->params.num_of_eat != -1)
-		{
-			philo_isfull++;
-		}
 		if (check_death(head))
 		{
 			exit (0);
 		}
-		if (philo_isfull == head->params.num_of_philos)
+		if (check && head->params.num_of_eat != -1 && head->count_eat >= \
+			head->params.num_of_eat)
 		{
-			exit (0);
+			sem_post(head->all->eat_check);
+			check = 0;
 		}
+		usleep(1000);
 	}
 	return (0);
 }
@@ -60,11 +70,6 @@ void	actions(t_philo *philo)
 		take_fork(philo);
 		eat(philo);
 		philo->count_eat++;
-		if (philo->count_eat == philo->params.num_of_eat && \
-			philo->params.num_of_eat != -1)
-		{
-			return ;
-		}
 		sleeping(philo);
 		thinking(philo);
 	}
@@ -76,6 +81,8 @@ void	ft_philo(t_all *all)
 	pthread_t	thread_st;
 
 	i = 0;
+	if (all->input.num_of_eat != -1)
+		pthread_create(&thread_st, NULL, check_count_eat, all);
 	while (i < all->input.num_of_philos)
 	{
 		all->pid[i] = fork();
@@ -88,11 +95,9 @@ void	ft_philo(t_all *all)
 		}
 		i++;
 	}
+	ft_post_sem(all);
+	pthread_join(thread_st, NULL);
 	kill_process(all);
-	sem_close(all->forks);
-	sem_close(all->rights_to_write);
-	sem_unlink("forks");
-	sem_unlink("rights_to_write");
 	exit(0);
 }
 

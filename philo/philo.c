@@ -6,7 +6,7 @@
 /*   By: mjammie <mjammie@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/12 16:04:34 by mjammie           #+#    #+#             */
-/*   Updated: 2021/06/24 16:59:16 by mjammie          ###   ########.fr       */
+/*   Updated: 2021/06/30 12:23:28 by mjammie          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,22 +80,15 @@ void	ft_philo(t_all *all)
 	int			i;
 	pthread_t	thread_st;
 
-	i = 1;
+	i = 0;
 	pthread_create(&thread_st, NULL, check_starvation, all);
 	while (i < all->input.num_of_philos)
 	{
 		pthread_create(&all->philosofers->thread, NULL, actions, \
 			all->philosofers + i);
-		i += 2;
+		usleep(50);
+		i++;
 	}
-	i = 0;
-	while (i < all->input.num_of_philos)
-	{
-		pthread_create(&all->philosofers->thread, NULL, actions, \
-			all->philosofers + i);
-		i += 2;
-	}
-	i = -1;
 	pthread_join(thread_st, NULL);
 	free_all(all);
 }

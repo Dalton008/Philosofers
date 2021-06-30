@@ -6,7 +6,7 @@
 /*   By: mjammie <mjammie@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/20 16:29:48 by mjammie           #+#    #+#             */
-/*   Updated: 2021/06/24 16:56:32 by mjammie          ###   ########.fr       */
+/*   Updated: 2021/06/30 15:48:46 by mjammie          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ typedef struct s_all
 	t_philo	*philosofers;
 	sem_t	*forks;
 	sem_t	*rights_to_write;
+	sem_t	*eat_check;
 	t_input	input;
 }				t_all;
 
@@ -71,5 +72,7 @@ void	eat(t_philo *philo);
 void	sleeping(t_philo *philo);
 void	thinking(t_philo *philo);
 void	kill_process(t_all *all);
+int		check_death(t_philo	*philo);
+void	ft_post_sem(t_all *all);
 
 #endif
